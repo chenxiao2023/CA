@@ -10,6 +10,8 @@ import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
 import android.Manifest;
+import android.content.ClipData;
+import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
@@ -305,7 +307,7 @@ private void postOne(String url) {
                                 String message = jsonObject.getString("message");
 
 
-                                showres.setText("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"被撤销的公钥="+RegpublicKey);
+                                showres.setText("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的公钥="+RegpublicKey);
                                 writeToInternalStorage("----------Revoke_PublicKey-------");
                                 writeToInternalStorage("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"被撤销的公钥="+RegpublicKey);
                                 writeToInternalStorage("\n");
@@ -479,7 +481,17 @@ private void getOne(String url) {
                 dialog.dismiss();
             }
         });
-
+        // 添加"复制"按钮
+        builder.setNegativeButton("复制", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int which) {
+                // 获取剪贴板服务
+                ClipboardManager clipboard = (ClipboardManager) getSystemService(Context.CLIPBOARD_SERVICE);
+                ClipData clip = ClipData.newPlainText("文件内容", fileContent);
+                clipboard.setPrimaryClip(clip);  // 设置剪贴板内容
+                Toast.makeText(getApplicationContext(), "内容已复制", Toast.LENGTH_SHORT).show();  // 提示用户
+            }
+        });
         // 显示对话框
         AlertDialog dialog = builder.create();
         dialog.show();
