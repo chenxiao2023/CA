@@ -44,7 +44,14 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="更新公钥" />
+            android:text="公钥派生" />
+
+        <Button
+            android:id="@+id/batchRegisterButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="批量注册公钥" />
 
     </LinearLayout>
 
@@ -64,17 +71,23 @@
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="发布公钥"
+            android:text="注册公钥"
             tools:layout_editor_absoluteX="-2dp"
             tools:layout_editor_absoluteY="706dp" />
 
-        <Button
+      <!---  <Button
             android:id="@+id/publishTxIDButton"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="发布TxID" />
+            android:text="发布TxID" />  -->
 
+        <Button
+            android:id="@+id/revokePkButton"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="撤销公钥" />
 
         <Button
             android:id="@+id/showfile"

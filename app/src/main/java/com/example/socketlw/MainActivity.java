@@ -94,11 +94,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     private Button deployContractButton;
     private Button publishPublicKeyButton;
-    private Button publishTxIDButton;
     private Button updatePublicKeyButton;
+    private Button batchRegisterButton;
     private Button showFile;
+    private Button revokePkButton;
 
-
+    //private String address = "0xccdee8c8017f64c686fa39c42f883f363714e078";//地址2
+    private String address = "0x4f4072fc87a0833ea924f364e8a2af3546f71279";
 
     private List<MessageInfor> datas = new ArrayList<MessageInfor>();
     private SimpleDateFormat simpleDateFormat;
@@ -108,15 +110,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
     //http参数
     private String res="";
+    private String RegpublicKey;
 
     //部署合约
     private  String urlDeployContract = "http://192.168.220.20:8080/deployContract";
     //更新公钥
-    private  String urlUpdatePK = "http://192.168.220.20:8080/keyDerive";
-    //发布公钥
-    private  String urlPublishPublicKey =  "http://192.168.220.20:8080/publishKey";
+    private  String urlPkDerive = "http://192.168.220.20:8080/pkDerive";
+    //注册公钥
+    private  String urlBatchRegisterPk =  "http://192.168.220.20:8080/BatchRegisterPk";
+    //批量注册公钥
+    private  String urlRegisterPk =  "http://192.168.220.20:8080/registerPk";
+    //撤销公钥
+    private  String urlRevokePk =  "http://192.168.220.20:8080/revokePk";
     //发布TxID
-    private  String urlPublishTxID = "http://192.168.220.20:8080/publishTxID";
+    //private  String urlPublishTxID = "http://192.168.220.20:8080/publishTxID";
 
 
 
@@ -149,16 +156,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         deployContractButton = (Button) findViewById(R.id.deployContractButton);
         updatePublicKeyButton = (Button) findViewById(R.id.updatePublicKeyButton);
+        batchRegisterButton = (Button) findViewById(R.id.batchRegisterButton);
         showFile = (Button) findViewById(R.id.showfile);
-        publishPublicKeyButton = (Button) findViewById(R.id.updatePublicKeyButton);
-        publishTxIDButton = (Button) findViewById(R.id.publishTxIDButton);
+        publishPublicKeyButton = (Button) findViewById(R.id.publishPublicKeyButton);
+        revokePkButton = (Button) findViewById(R.id.revokePkButton);
+
 
         simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
         deployContractButton.setOnClickListener(this);
         updatePublicKeyButton.setOnClickListener(this);
+        batchRegisterButton.setOnClickListener(this);
         publishPublicKeyButton.setOnClickListener(this);
-        publishTxIDButton.setOnClickListener(this);
+        revokePkButton.setOnClickListener(this);
         showFile.setOnClickListener(this);
 
     }
@@ -184,16 +194,19 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.deployContractButton://部署公钥
-                postOne(urlDeployContract);
+                getOne(urlDeployContract);
                 break;
             case R.id.updatePublicKeyButton://更新公钥
-                postOne(urlUpdatePK);
+                postOne(urlPkDerive);
                 break;
-            case R.id.publishPublicKeyButton://发布公钥
-                postOne(urlPublishPublicKey);
+            case R.id.batchRegisterButton://批量注册公钥
+                postOne(urlBatchRegisterPk);
                 break;
-            case R.id.publishTxIDButton://发布TxID
-                postOne(urlPublishTxID);
+            case R.id.publishPublicKeyButton://注册公钥
+                postOne(urlRegisterPk);
+                break;
+            case R.id.revokePkButton://撤销公钥
+                postOne(urlRevokePk);
                 break;
             case R.id.showfile://展示日志
                 showFileContentDialog();
@@ -211,12 +224,11 @@ private void postOne(String url) {
                 @Override
                 public void onResponse(String response) {
                    // res=response;
-                    Toast.makeText(MainActivity.this, "请求成功: response = " + res, Toast.LENGTH_SHORT).show();
                     Log.d("测试PostOne", "url = " + url);
                     Log.d("测试PostOne", "response =" + response);
 
                     switch (url){
-                        case "http://192.168.220.20:8080/deployContract"://返回时间
+                        /*case "http://192.168.220.20:8080/deployContract"://返回时间
                             try {
                                 JSONArray jsonArray = new JSONArray(response);
                                 JSONObject jsonObject = jsonArray.getJSONObject(0);
@@ -228,32 +240,79 @@ private void postOne(String url) {
                                 showres.setText("response="+response);
                                 writeToInternalStorage("--------------DeployContract------------");
                                 writeToInternalStorage("response="+response);
-                                writeToInternalStorage("---------------END---------------");
+                                writeToInternalStorage("\n");
+                            } catch (JSONException e) {
+                                Log.e("JSON解析错误", "解析失败: " + e.getMessage());
+                            }
+
+                            break;*/
+                        case "http://192.168.220.20:8080/pkDerive":
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                String runtime = jsonObject.getString("runtime");
+                                String chain = jsonObject.getString("chain");
+                                String publicKey = jsonObject.getString("publicKey");
+                                // 输出或者使用这些数据
+                                showres.setText("SM2_PublicKeyDerive duration:"+runtime+"\npublicKey="+publicKey+"\nchain="+chain);
+                                writeToInternalStorage("-------SM2_PublicKeyDerive-------");
+                                writeToInternalStorage("SM2_PublicKeyDerive duration:"+runtime+"\npublicKey="+publicKey+"\nchain="+chain);
+                                writeToInternalStorage("\n");
                             } catch (JSONException e) {
                                 Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                             }
 
                             break;
-                        case "http://192.168.220.20:8080/keyDerive":
-                            showres.setText("response="+response);
-                            writeToInternalStorage("---------KeyDerive--------");
-                            writeToInternalStorage("response="+response);
-                            writeToInternalStorage("---------------END---------------");
+                        case "http://192.168.220.20:8080/registerPk":
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                String runtime = jsonObject.getString("runtime");
+                                String message = "成功注册公钥:生成公钥证书,将公钥证书嵌入到交易发布到区块链上,更新合约内容";
+                                String publicKey = jsonObject.getString("publicKey");
+                                RegpublicKey=publicKey;
+                                String transaction = jsonObject.getString("transaction");
+
+
+                                showres.setText("Register_PublicKey duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
+                                writeToInternalStorage("-------Register_PublicKey-------");
+                                writeToInternalStorage("Register_PublicKey duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
+                                writeToInternalStorage("\n");
+                            } catch (JSONException e) {
+                                Log.e("JSON解析错误", "解析失败: " + e.getMessage());
+                            }
 
                             break;
-                        case "http://192.168.220.20:8080/publishKey":
-                            showres.setText("response="+response);
-                            writeToInternalStorage("------------PublishKey----------");
-                            writeToInternalStorage("response="+response);
-                            writeToInternalStorage("---------------END---------------");
-                            break;
-                        case "http://192.168.220.20:8080/publishTxID":
-                            showres.setText("response="+response);
-                            writeToInternalStorage("-----------PublishTxID---------");
-                            writeToInternalStorage("response="+response);
-                            writeToInternalStorage("---------------END---------------");
-                            break;
+                        case "http://192.168.220.20:8080/BatchRegisterPk":
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                String runtime = jsonObject.getString("runtime");
+                                String message = "成功派生密钥五次，并注册公钥";
+                                String publicKey = jsonObject.getString("publicKey");
+                                String transaction = jsonObject.getString("transaction");
 
+
+                                showres.setText("BatchRegisterPk duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
+                                writeToInternalStorage("----------BatchRegisterPk--------");
+                                writeToInternalStorage("BatchRegisterPk duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
+                                writeToInternalStorage("\n");
+                            } catch (JSONException e) {
+                                Log.e("JSON解析错误", "解析失败: " + e.getMessage());
+                            }
+                            break;
+                        case "http://192.168.220.20:8080/revokePk":
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                String runtime = jsonObject.getString("runtime");
+                                String message = jsonObject.getString("message");
+
+
+                                showres.setText("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"被撤销的公钥="+RegpublicKey);
+                                writeToInternalStorage("----------Revoke_PublicKey-------");
+                                writeToInternalStorage("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"被撤销的公钥="+RegpublicKey);
+                                writeToInternalStorage("\n");
+                            } catch (JSONException e) {
+                                Log.e("JSON解析错误", "解析失败: " + e.getMessage());
+                            }
+                            break;
                         default:
                             System.out.println("Url错误！！");
 
@@ -282,20 +341,25 @@ private void postOne(String url) {
         public byte[] getBody() {
             JSONObject jsonObject = new JSONObject();
            // jsonObject=JsonPut.PutJson(jsonObject,"address","0x4f4072fc87a0833ea924f364e8a2af3546f71279");
-           /* switch (url){
+            switch (url){
                 case "http://192.168.220.20:8080/deployContract":
                     break;
-                case "http://192.168.220.20:8080/keyDerive"://给txID返回证书
-
+                case "http://192.168.220.20:8080/pkDerive"://给地址返回
+                    jsonObject=JsonPut.PutJson(jsonObject,"address",address);
                     break;
-                case "http://192.168.220.20:8080/publishKey":
+                case "http://192.168.220.20:8080/registerPk":
+                    jsonObject=JsonPut.PutJson(jsonObject,"address",address);
                     break;
-                case "http://192.168.220.20:8080/publishTxID":
+                case "http://192.168.220.20:8080/BatchRegisterPk":
+                    jsonObject=JsonPut.PutJson(jsonObject,"address",address);
+                    break;
+                case "http://192.168.220.20:8080/revokePk":
+                    jsonObject=JsonPut.PutJson(jsonObject,"key",RegpublicKey);
                     break;
                 default:
                     System.out.println("Url错误！！");
                     return new byte[0]; // 返回空字节数组
-            }*/
+            }
             // 返回 JSON 格式的请求体
           //  jsonObject=JsonPut.PutJson(jsonObject,"address","0x4f4072fc87a0833ea924f364e8a2af3546f71279");
             System.out.println(jsonObject.toString());
@@ -315,6 +379,65 @@ private void postOne(String url) {
     queue.add(jsonRequest);
 }
 
+//get方法
+private void getOne(String url) {
+    RequestQueue queue = Volley.newRequestQueue(this);
+    StringRequest jsonRequest = new StringRequest(Request.Method.GET, url,
+            new Response.Listener<String>() {
+                @Override
+                public void onResponse(String response) {
+                    // res=response;
+                    try {
+                        JSONObject jsonObject = new JSONObject(response);
+                        String runtime = jsonObject.getString("runtime");
+                        String message = "合约部署成功，地址="+address;
+                        // 输出或者使用这些数据
+                        Log.d("message=" , message);
+                        Log.d("runtime=" , runtime);
+                        showres.setText("MapPkToTx.deploy duration:"+runtime+"\n"+message);
+                        writeToInternalStorage("----------DeployContract---------");
+                        writeToInternalStorage("MapPkToTx.deploy duration:"+runtime+"\n"+message);
+                        writeToInternalStorage("\n");
+                    } catch (JSONException e) {
+                        Log.e("JSON解析错误", "解析失败: " + e.getMessage());
+                    }
+                    Log.d("测试PostOne", "url = " + url);
+                    Log.d("测试PostOne", "response =" + response);
+
+
+                }
+            },
+            new Response.ErrorListener() {
+                @Override
+                public void onErrorResponse(VolleyError error) {
+                    if (error.networkResponse != null) {
+                        Log.e("TAG", "Response code: " + error.networkResponse.statusCode);
+                        Log.e("TAG", "Response data: " + new String(error.networkResponse.data));
+                    } else {
+                        Log.e("TAG", "Network response is null");
+                    }
+                    String errorMessage = error.getMessage();
+                    if (errorMessage == null) {
+                        Log.e("TAG", "Error message is null");
+                    } else {
+                        Log.e("TAG", "Error message: " + errorMessage);
+                    }
+
+                }
+            }) {
+
+        @Override
+        public String getBodyContentType() {
+            return "application/json; charset=utf-8";
+        }
+    };
+    int socketTimeout = 10000; // 10 seconds
+    RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
+    jsonRequest.setRetryPolicy(policy);
+
+
+    queue.add(jsonRequest);
+}
 
     // 写入文件到内部存储
     private void writeToInternalStorage(String data) {
