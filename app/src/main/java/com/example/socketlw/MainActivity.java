@@ -254,6 +254,7 @@ private void postOne(String url) {
                                 String runtime = jsonObject.getString("runtime");
                                 String chain = jsonObject.getString("chain");
                                 String publicKey = jsonObject.getString("publicKey");
+                                RegpublicKey=publicKey;
                                 // 输出或者使用这些数据
                                 showres.setText("SM2_PublicKeyDerive duration:"+runtime+"\npublicKey="+publicKey+"\nchain="+chain);
                                 writeToInternalStorage("-------SM2_PublicKeyDerive-------");
@@ -268,9 +269,9 @@ private void postOne(String url) {
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
                                 String runtime = jsonObject.getString("runtime");
-                                String message = "成功注册公钥:生成公钥证书,将公钥证书嵌入到交易发布到区块链上,更新合约内容";
+                                String message = "“成功注册公钥:生成公钥证书,将公钥证书嵌入到交易发布到区块链上,更新合约内容”";
                                 String publicKey = jsonObject.getString("publicKey");
-                                RegpublicKey=publicKey;
+
                                 String transaction = jsonObject.getString("transaction");
 
 
@@ -287,7 +288,7 @@ private void postOne(String url) {
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
                                 String runtime = jsonObject.getString("runtime");
-                                String message = "成功派生密钥五次，并注册公钥";
+                                String message = "“成功派生密钥五次，并注册公钥”";
                                 String publicKey = jsonObject.getString("publicKey");
                                 String transaction = jsonObject.getString("transaction");
 
@@ -307,9 +308,9 @@ private void postOne(String url) {
                                 String message = jsonObject.getString("message");
 
 
-                                showres.setText("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的公钥="+RegpublicKey);
+                                showres.setText("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的publickey="+RegpublicKey);
                                 writeToInternalStorage("----------Revoke_PublicKey-------");
-                                writeToInternalStorage("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"被撤销的公钥="+RegpublicKey);
+                                writeToInternalStorage("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的publickey="+RegpublicKey);
                                 writeToInternalStorage("\n");
                             } catch (JSONException e) {
                                 Log.e("JSON解析错误", "解析失败: " + e.getMessage());
@@ -392,7 +393,7 @@ private void getOne(String url) {
                     try {
                         JSONObject jsonObject = new JSONObject(response);
                         String runtime = jsonObject.getString("runtime");
-                        String message = "合约部署成功，地址="+address;
+                        String message = "合约部署成功，合约地址="+address;
                         // 输出或者使用这些数据
                         Log.d("message=" , message);
                         Log.d("runtime=" , runtime);
