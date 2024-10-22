@@ -1,10 +1,5 @@
 package com.example.socketlw;
 
-import static com.example.socketlw.CertificateGenerator.certRecover;
-import static com.example.socketlw.CertificateGenerator.certRecoverfromtx;
-import static com.example.socketlw.CertificateGenerator.makeCert;
-import static com.example.socketlw.CertificateGenerator.readPublicKey;
-import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
@@ -15,57 +10,25 @@ import android.content.ClipboardManager;
 import android.content.Context;
 import android.content.DialogInterface;
 import android.content.pm.PackageManager;
-import android.content.res.AssetManager;
-import android.graphics.Bitmap;
-import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.os.Build;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Message;
+
 import android.text.method.ScrollingMovementMethod;
-import android.util.Base64;
 import android.util.Log;
-import android.view.LayoutInflater;
+
 import android.view.View;
-import android.view.ViewGroup;
-import android.widget.BaseAdapter;
+
 import android.widget.Button;
-import android.widget.EditText;
-import android.widget.ImageView;
-import android.widget.ListView;
+
 import android.widget.TextView;
 import android.widget.Toast;
-import org.bouncycastle.jce.provider.BouncyCastleProvider;
-import org.bouncycastle.util.encoders.Hex;
-import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 import java.io.BufferedReader;
-import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
-import java.io.FileReader;
+
 import java.io.IOException;
-import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.OutputStream;
-import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
-
-import java.math.BigInteger;
-import java.net.InetAddress;
-import java.net.ServerSocket;
-import java.net.Socket;
-
-import java.security.cert.CertificateFactory;
-import java.security.cert.X509Certificate;
-import java.sql.Date;
-import java.text.SimpleDateFormat;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Locale;
 
 //http请求用的
 import com.android.volley.DefaultRetryPolicy;
@@ -73,27 +36,15 @@ import com.android.volley.Request;
 import com.android.volley.RequestQueue;
 import com.android.volley.Response;
 import com.android.volley.RetryPolicy;
-import com.android.volley.TimeoutError;
+
 import com.android.volley.VolleyError;
-import com.android.volley.toolbox.JsonObjectRequest;
+
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
-import com.example.socketlw.MainUse.MessageHolder;
-import com.example.socketlw.SM2Utils.SM2Util;
-import com.example.socketlw.SM2Utils.Util;
-
-import java.util.HashMap;
-import java.util.Map;
-import java.security.*;
-import java.util.Objects;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
-    private LayoutInflater inflater;
-    private View layout;
-    private AlertDialog.Builder builder;
+
     private TextView showres;
-
-
     private Button deployContractButton;
     private Button publishPublicKeyButton;
     private Button updatePublicKeyButton;
@@ -104,14 +55,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //private String address = "0xccdee8c8017f64c686fa39c42f883f363714e078";//地址2
     private String address = "0x4f4072fc87a0833ea924f364e8a2af3546f71279";
 
-    private List<MessageInfor> datas = new ArrayList<MessageInfor>();
-    private SimpleDateFormat simpleDateFormat;
-    private static Socket socket = null;//用于与服务端通信的Socket
-    private static ServerSocket server;
-    private static List<PrintWriter> allOut; //存放所有客户端的输出流的集合，用于广播
-
     //http参数
-    private String res="";
     private String RegpublicKey;
 
     //部署合约
@@ -124,10 +68,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private  String urlRegisterPk =  "http://192.168.220.20:8080/registerPk";
     //撤销公钥
     private  String urlRevokePk =  "http://192.168.220.20:8080/revokePk";
-    //发布TxID
-    //private  String urlPublishTxID = "http://192.168.220.20:8080/publishTxID";
-
-
 
     private static String[] PERMISSIONS_STORAGE = {
             //依次权限申请
@@ -145,9 +85,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
 
         //清空文件内容
         clearFileOnStartup();
-
     }
-
     /**
      * 初始化控件
      */
@@ -163,8 +101,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         publishPublicKeyButton = (Button) findViewById(R.id.publishPublicKeyButton);
         revokePkButton = (Button) findViewById(R.id.revokePkButton);
 
-
-        simpleDateFormat = new SimpleDateFormat("yyyy-MM-dd HH:mm:ss", Locale.getDefault());
 
         deployContractButton.setOnClickListener(this);
         updatePublicKeyButton.setOnClickListener(this);
@@ -191,7 +127,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         }
     }
 
-
     @Override
     public void onClick(View view) {
         switch (view.getId()){
@@ -214,7 +149,6 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
                 showFileContentDialog();
                 break;
             default:
-
         }
     }
 
@@ -230,24 +164,6 @@ private void postOne(String url) {
                     Log.d("测试PostOne", "response =" + response);
 
                     switch (url){
-                        /*case "http://192.168.220.20:8080/deployContract"://返回时间
-                            try {
-                                JSONArray jsonArray = new JSONArray(response);
-                                JSONObject jsonObject = jsonArray.getJSONObject(0);
-                                String time = jsonObject.getString("time");
-                                int value = jsonObject.getInt("value");
-                                String name = jsonObject.getString("name");
-                                // 输出或者使用这些数据
-                                Log.d("JSON解析", "时间: " + time + ", 值: " + value + ", 名称: " + name);
-                                showres.setText("response="+response);
-                                writeToInternalStorage("--------------DeployContract------------");
-                                writeToInternalStorage("response="+response);
-                                writeToInternalStorage("\n");
-                            } catch (JSONException e) {
-                                Log.e("JSON解析错误", "解析失败: " + e.getMessage());
-                            }
-
-                            break;*/
                         case "http://192.168.220.20:8080/pkDerive":
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
@@ -263,7 +179,6 @@ private void postOne(String url) {
                             } catch (JSONException e) {
                                 Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                             }
-
                             break;
                         case "http://192.168.220.20:8080/registerPk":
                             try {
@@ -271,9 +186,7 @@ private void postOne(String url) {
                                 String runtime = jsonObject.getString("runtime");
                                 String message = "“成功注册公钥:生成公钥证书,将公钥证书嵌入到交易发布到区块链上,更新合约内容”";
                                 String publicKey = jsonObject.getString("publicKey");
-
                                 String transaction = jsonObject.getString("transaction");
-
 
                                 showres.setText("Register_PublicKey duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
                                 writeToInternalStorage("-------Register_PublicKey-------");
@@ -282,7 +195,6 @@ private void postOne(String url) {
                             } catch (JSONException e) {
                                 Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                             }
-
                             break;
                         case "http://192.168.220.20:8080/BatchRegisterPk":
                             try {
@@ -291,7 +203,6 @@ private void postOne(String url) {
                                 String message = "“成功派生密钥五次，并注册公钥”";
                                 String publicKey = jsonObject.getString("publicKey");
                                 String transaction = jsonObject.getString("transaction");
-
 
                                 showres.setText("BatchRegisterPk duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
                                 writeToInternalStorage("----------BatchRegisterPk--------");
@@ -306,7 +217,6 @@ private void postOne(String url) {
                                 JSONObject jsonObject = new JSONObject(response);
                                 String runtime = jsonObject.getString("runtime");
                                 String message = jsonObject.getString("message");
-
 
                                 showres.setText("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的publickey="+RegpublicKey);
                                 writeToInternalStorage("----------Revoke_PublicKey-------");
@@ -343,7 +253,6 @@ private void postOne(String url) {
         @Override
         public byte[] getBody() {
             JSONObject jsonObject = new JSONObject();
-           // jsonObject=JsonPut.PutJson(jsonObject,"address","0x4f4072fc87a0833ea924f364e8a2af3546f71279");
             switch (url){
                 case "http://192.168.220.20:8080/deployContract":
                     break;
@@ -363,8 +272,6 @@ private void postOne(String url) {
                     System.out.println("Url错误！！");
                     return new byte[0]; // 返回空字节数组
             }
-            // 返回 JSON 格式的请求体
-          //  jsonObject=JsonPut.PutJson(jsonObject,"address","0x4f4072fc87a0833ea924f364e8a2af3546f71279");
             System.out.println(jsonObject.toString());
             return jsonObject.toString().getBytes();
 
@@ -377,8 +284,6 @@ private void postOne(String url) {
     int socketTimeout = 10000; // 10 seconds
     RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
     jsonRequest.setRetryPolicy(policy);
-
-
     queue.add(jsonRequest);
 }
 
@@ -389,14 +294,12 @@ private void getOne(String url) {
             new Response.Listener<String>() {
                 @Override
                 public void onResponse(String response) {
-                    // res=response;
+                    Log.d("测试PostOne", "url = " + url);
+                    Log.d("测试PostOne", "response =" + response);
                     try {
                         JSONObject jsonObject = new JSONObject(response);
                         String runtime = jsonObject.getString("runtime");
                         String message = "合约部署成功，合约地址="+address;
-                        // 输出或者使用这些数据
-                        Log.d("message=" , message);
-                        Log.d("runtime=" , runtime);
                         showres.setText("MapPkToTx.deploy duration:"+runtime+"\n"+message);
                         writeToInternalStorage("----------DeployContract---------");
                         writeToInternalStorage("MapPkToTx.deploy duration:"+runtime+"\n"+message);
@@ -404,9 +307,6 @@ private void getOne(String url) {
                     } catch (JSONException e) {
                         Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                     }
-                    Log.d("测试PostOne", "url = " + url);
-                    Log.d("测试PostOne", "response =" + response);
-
 
                 }
             },
@@ -441,7 +341,6 @@ private void getOne(String url) {
 
     queue.add(jsonRequest);
 }
-
     // 写入文件到内部存储
     private void writeToInternalStorage(String data) {
         try (FileOutputStream fos = openFileOutput("logg.txt", MODE_APPEND)) {
