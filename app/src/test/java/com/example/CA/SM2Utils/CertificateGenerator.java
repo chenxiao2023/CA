@@ -1,4 +1,4 @@
-package com.example.socketlw.SM2Utils;
+package com.example.CA.SM2Utils;
 
 import org.bouncycastle.asn1.x509.SubjectPublicKeyInfo;
 import org.bouncycastle.openssl.PEMParser;

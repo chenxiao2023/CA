@@ -1,4 +1,4 @@
-package com.example.socketlw.SM2Utils;
+package com.example.CA.SM2Utils;
 
 import org.bouncycastle.asn1.x9.ECNamedCurveTable;
 import org.bouncycastle.asn1.x9.X9ECParameters;

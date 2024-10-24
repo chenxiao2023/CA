@@ -1,4 +1,4 @@
-package com.example.socketlw.SM2Utils;
+package com.example.CA.SM2Utils;
 
 import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
 import org.bouncycastle.crypto.CryptoException;

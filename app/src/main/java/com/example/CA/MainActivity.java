@@ -1,4 +1,4 @@
-package com.example.socketlw;
+package com.example.CA;
 
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
@@ -52,8 +52,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button showFile;
     private Button revokePkButton;
 
-    //private String address = "0xccdee8c8017f64c686fa39c42f883f363714e078";//地址2
-    private String address = "0x4f4072fc87a0833ea924f364e8a2af3546f71279";
+    //private String address = "0xccdee8c8017f64c686fa39c42f883f363714e078";
+    private String address = "0x4f4072fc87a0833ea924f364e8a2af3546f71279";//地址2
 
     //http参数
     private String RegpublicKey;
