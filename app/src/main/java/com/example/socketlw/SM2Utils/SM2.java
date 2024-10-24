@@ -19,12 +19,6 @@ import java.security.SecureRandom;
 
 
 
-/**
- * @author mtj
- * @date 2021/8/12
- * @desc
- * @email mtjsoft3@gmail.com
- */
 class SM2 {
     private final ECCurve mCurve;
 
