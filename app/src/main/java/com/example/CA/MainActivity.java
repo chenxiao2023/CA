@@ -55,19 +55,20 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //private String address = "0xccdee8c8017f64c686fa39c42f883f363714e078";
     private String address = "0x4f4072fc87a0833ea924f364e8a2af3546f71279";//地址2
 
+    private String token="0x4c26aecee34487d29adff978fd6791578ed8fd28";
     //http参数
     private String RegpublicKey;
 
     //部署合约
-    private  String urlDeployContract = "http://192.168.220.20:8080/deployContract";
+    private  String urlDeployContract = "http://110.41.188.6:8080/deployContract";
     //更新公钥
-    private  String urlPkDerive = "http://192.168.220.20:8080/pkDerive";
+    private  String urlPkDerive = "http://110.41.188.6:8080/pkDerive";
     //注册公钥
-    private  String urlBatchRegisterPk =  "http://192.168.220.20:8080/BatchRegisterPk";
+    private  String urlBatchRegisterPk =  "http://110.41.188.6:8080/BatchRegisterPk";
     //批量注册公钥
-    private  String urlRegisterPk =  "http://192.168.220.20:8080/registerPk";
+    private  String urlRegisterPk =  "http://110.41.188.6:8080/registerPk";
     //撤销公钥
-    private  String urlRevokePk =  "http://192.168.220.20:8080/revokePk";
+    private  String urlRevokePk =  "http://110.41.188.6:8080/revokePk";
 
     private static String[] PERMISSIONS_STORAGE = {
             //依次权限申请
@@ -131,7 +132,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     public void onClick(View view) {
         switch (view.getId()){
             case R.id.deployContractButton://部署公钥
-                getOne(urlDeployContract);
+                postOne(urlDeployContract);
                 break;
             case R.id.updatePublicKeyButton://更新公钥
                 postOne(urlPkDerive);
@@ -164,7 +165,20 @@ private void postOne(String url) {
                     Log.d("测试PostOne", "response =" + response);
 
                     switch (url){
-                        case "http://192.168.220.20:8080/pkDerive":
+                        case "http://110.41.188.6:8080/deployContract":
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                String runtime = jsonObject.getString("runtime");
+                                String message = "合约部署成功，合约地址="+address;
+                                showres.setText("MapPkToTx.deploy duration:"+runtime+"\n"+message);
+                                writeToInternalStorage("----------DeployContract---------");
+                                writeToInternalStorage("MapPkToTx.deploy duration:"+runtime+"\n"+message);
+                                writeToInternalStorage("\n");
+                            } catch (JSONException e) {
+                                Log.e("JSON解析错误", "解析失败: " + e.getMessage());
+                            }
+                            break;
+                        case "http://110.41.188.6:8080/pkDerive":
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
                                 String runtime = jsonObject.getString("runtime");
@@ -180,7 +194,7 @@ private void postOne(String url) {
                                 Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                             }
                             break;
-                        case "http://192.168.220.20:8080/registerPk":
+                        case "http://110.41.188.6:8080/registerPk":
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
                                 String runtime = jsonObject.getString("runtime");
@@ -196,7 +210,7 @@ private void postOne(String url) {
                                 Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                             }
                             break;
-                        case "http://192.168.220.20:8080/BatchRegisterPk":
+                        case "http://110.41.188.6:8080/BatchRegisterPk":
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
                                 String runtime = jsonObject.getString("runtime");
@@ -212,7 +226,7 @@ private void postOne(String url) {
                                 Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                             }
                             break;
-                        case "http://192.168.220.20:8080/revokePk":
+                        case "http://110.41.188.6:8080/revokePk":
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
                                 String runtime = jsonObject.getString("runtime");
@@ -254,18 +268,23 @@ private void postOne(String url) {
         public byte[] getBody() {
             JSONObject jsonObject = new JSONObject();
             switch (url){
-                case "http://192.168.220.20:8080/deployContract":
+                case "http://110.41.188.6:8080/deployContract":
+                    jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
                     break;
-                case "http://192.168.220.20:8080/pkDerive"://给地址返回
+                case "http://110.41.188.6:8080/pkDerive"://给地址返回
+                    jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
                     jsonObject=JsonPut.PutJson(jsonObject,"address",address);
                     break;
-                case "http://192.168.220.20:8080/registerPk":
+                case "http://110.41.188.6:8080/registerPk":
+                    jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
                     jsonObject=JsonPut.PutJson(jsonObject,"address",address);
                     break;
-                case "http://192.168.220.20:8080/BatchRegisterPk":
+                case "http://110.41.188.6:8080/BatchRegisterPk":
+                    jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
                     jsonObject=JsonPut.PutJson(jsonObject,"address",address);
                     break;
-                case "http://192.168.220.20:8080/revokePk":
+                case "http://110.41.188.6:8080/revokePk":
+                    jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
                     jsonObject=JsonPut.PutJson(jsonObject,"key",RegpublicKey);
                     break;
                 default:
