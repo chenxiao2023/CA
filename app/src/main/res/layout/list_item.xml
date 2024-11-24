@@ -1,0 +1,294 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:background="@drawable/border_background"
+    android:padding="16dp">
+
+    <!-- 左边部分：一张图片，垂直居中 -->
+    <ImageView
+        android:id="@+id/left_image"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginEnd="16dp"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/man" />
+
+    <!-- 中间部分：四行动态变化的文本 -->
+
+    <LinearLayout
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:orientation="vertical">
+
+        <!-- 第一个 TextView 和前缀的组合 -->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="5dp"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:orientation="horizontal">
+
+            <!-- 第一个 TextView 的前缀 -->
+            <TextView
+                android:id="@+id/prefix_address"
+                android:layout_width="85dp"
+                android:layout_height="40dp"
+                android:text="address"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@drawable/rounded_background"
+                android:padding="8dp"
+                android:elevation="1dp" />
+
+            <!-- 第一个 TextView 和展开按钮的组合 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_background_light">
+
+                <!-- 第一个 TextView -->
+                <TextView
+                    android:id="@+id/text_line_1"
+                    android:layout_width="112dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:elevation="1dp"
+                    android:ellipsize="end"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:gravity="center_vertical|start"
+                    android:maxLines="1"
+                    android:padding="8dp"
+                    android:scrollbars="vertical"
+                    android:text="6572E4A85C25B8879750DFC194FA5699489ECDA9FC8CA7F658F917CA24BCE7EB"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp" />
+
+                <!-- 展开按钮 -->
+                <ImageView
+                    android:id="@+id/expand_button_address"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:src="@drawable/ic_expand_more"
+                    android:background="@drawable/rounded_background_light"
+                    android:padding="5dp"
+                    android:elevation="1dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 第二部分，公钥-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:orientation="horizontal">
+
+            <!-- 第二个 TextView 的前缀 -->
+            <TextView
+                android:id="@+id/prefix_pk"
+                android:layout_width="85dp"
+                android:layout_height="40dp"
+                android:text="pk"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@drawable/rounded_background"
+                android:padding="8dp"
+                android:elevation="1dp" />
+
+            <!-- 第二个 TextView 和展开按钮的组合 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_background_light">
+
+                <!-- 第二个 TextView -->
+                <TextView
+                    android:id="@+id/text_line_2"
+                    android:layout_width="112dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:elevation="1dp"
+                    android:ellipsize="end"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:gravity="center_vertical|start"
+                    android:maxLines="1"
+                    android:padding="8dp"
+                    android:scrollbars="vertical"
+                    android:text="9A35281B56A83C6DDF86453BB7FA9F3FB0BA4EFBAEB694C79E0EC2C1D2364435DDEE3DDB9DF033AAA6E0691514FD3B0D5C13A78CCD0BCF5ED854D214C646B130"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp" />
+
+                <!-- 展开按钮 -->
+                <ImageView
+                    android:id="@+id/expand_button_pk"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:src="@drawable/ic_expand_more"
+                    android:background="@drawable/rounded_background_light"
+                    android:padding="5dp"
+                    android:elevation="1dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 第三部分，chain-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:orientation="horizontal">
+
+            <!-- 第三个 TextView 的前缀 -->
+            <TextView
+                android:id="@+id/prefix_chain"
+                android:layout_width="85dp"
+                android:layout_height="40dp"
+                android:text="chain"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@drawable/rounded_background"
+                android:padding="8dp"
+                android:elevation="1dp" />
+
+            <!-- 第三个 TextView 和展开按钮的组合 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_background_light">
+
+                <!-- 第三个 TextView -->
+                <TextView
+                    android:id="@+id/text_line_3"
+                    android:layout_width="112dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:elevation="1dp"
+                    android:ellipsize="end"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:gravity="center_vertical|start"
+                    android:maxLines="1"
+                    android:padding="8dp"
+                    android:scrollbars="vertical"
+                    android:text="560AF94CC1C8BB9AE6986502136B425D"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp" />
+
+                <!-- 展开按钮 -->
+                <ImageView
+                    android:id="@+id/expand_button_chain"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:src="@drawable/ic_expand_more"
+                    android:background="@drawable/rounded_background_light"
+                    android:padding="5dp"
+                    android:elevation="1dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+        <!-- 第四部分，keyindex-->
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginBottom="5dp"
+            android:layout_marginLeft="5dp"
+            android:layout_marginRight="5dp"
+            android:orientation="horizontal">
+
+            <!-- 第四个 TextView 的前缀 -->
+            <TextView
+                android:id="@+id/prefix_keyIndex"
+                android:layout_width="85dp"
+                android:layout_height="40dp"
+                android:text="keyIndex"
+                android:textColor="@android:color/black"
+                android:textSize="16sp"
+                android:textStyle="bold"
+                android:gravity="center"
+                android:background="@drawable/rounded_background"
+                android:padding="8dp"
+                android:elevation="1dp" />
+
+            <!-- 第四个 TextView 和展开按钮的组合 -->
+            <LinearLayout
+                android:layout_width="0dp"
+                android:layout_weight="1"
+                android:layout_height="wrap_content"
+                android:background="@drawable/rounded_background_light">
+
+                <!-- 第四个 TextView -->
+                <TextView
+                    android:id="@+id/text_line_4"
+                    android:layout_width="112dp"
+                    android:layout_height="40dp"
+                    android:layout_weight="1"
+                    android:clickable="true"
+                    android:elevation="1dp"
+                    android:ellipsize="end"
+                    android:focusable="true"
+                    android:focusableInTouchMode="true"
+                    android:gravity="center_vertical|start"
+                    android:maxLines="1"
+                    android:padding="8dp"
+                    android:scrollbars="vertical"
+                    android:text="560AF94CC1C8BB9AE6986502136B425D"
+                    android:textColor="@android:color/black"
+                    android:textSize="14sp" />
+
+                <!-- 展开按钮 -->
+                <ImageView
+                    android:id="@+id/expand_button_keyIndex"
+                    android:layout_width="30dp"
+                    android:layout_height="30dp"
+                    android:layout_marginStart="5dp"
+                    android:layout_marginTop="5dp"
+                    android:layout_marginEnd="5dp"
+                    android:src="@drawable/ic_expand_more"
+                    android:background="@drawable/rounded_background_light"
+                    android:padding="5dp"
+                    android:elevation="1dp" />
+            </LinearLayout>
+        </LinearLayout>
+
+    </LinearLayout>
+
+    <!-- 右边部分：图片按钮，垂直居中 -->
+    <ImageView
+        android:id="@+id/right_button"
+        android:layout_width="48dp"
+        android:layout_height="48dp"
+        android:layout_marginStart="16dp"
+        android:layout_gravity="center_vertical"
+        android:src="@drawable/ic_more_vert_white_24dp" />
+
+</LinearLayout>

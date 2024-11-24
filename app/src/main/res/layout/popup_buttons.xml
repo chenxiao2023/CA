@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:background="@drawable/button_background"
+    >
+
+
+    <!-- 公钥注册按钮 -->
+    <Button
+        android:id="@+id/publishPublicKeyButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="注册公钥"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/button_background"
+        android:padding="10dp"
+        android:textColor="#000000"
+        />
+
+    <!-- 公钥派生按钮 -->
+    <Button
+        android:id="@+id/updatePublicKeyButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="公钥派生"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/button_background"
+        android:textColor="#000000"
+        />
+
+    <!-- 批量注册公钥 -->
+    <Button
+        android:id="@+id/batchRegisterButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="批量注册公钥"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/button_background"
+        android:textColor="#000000"
+        />
+
+    <!-- 撤销公钥 -->
+    <Button
+        android:id="@+id/revokePkButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="撤销公钥"
+        android:layout_gravity="center_horizontal"
+        android:background="@drawable/button_background"
+        android:textColor="#000000"
+        />
+
+</LinearLayout>

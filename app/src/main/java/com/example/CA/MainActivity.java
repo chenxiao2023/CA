@@ -1,9 +1,14 @@
 package com.example.CA;
 
+import static java.security.AccessController.getContext;
+
 import androidx.appcompat.app.AlertDialog;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.core.content.ContextCompat;
+import androidx.recyclerview.widget.LinearLayoutManager;
+import androidx.recyclerview.widget.RecyclerView;
+
 import android.Manifest;
 import android.content.ClipData;
 import android.content.ClipboardManager;
@@ -16,10 +21,14 @@ import android.os.Bundle;
 import android.text.method.ScrollingMovementMethod;
 import android.util.Log;
 
+import android.view.LayoutInflater;
 import android.view.View;
 
 import android.widget.Button;
 
+import android.widget.EditText;
+import android.widget.LinearLayout;
+import android.widget.PopupWindow;
 import android.widget.TextView;
 import android.widget.Toast;
 import org.json.JSONException;
@@ -29,6 +38,9 @@ import java.io.FileOutputStream;
 
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 
 //http请求用的
 import com.android.volley.DefaultRetryPolicy;
@@ -84,9 +96,26 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         applypermission();
         InitView();
 
+        RecyclerView recyclerView = findViewById(R.id.recycler_view);
+        recyclerView.setLayoutManager(new LinearLayoutManager(this));
+
+        List<ListItem> data = new ArrayList<>();
+        data.add(new ListItem(R.drawable.man, address, "9A35281B56A83C6DDF86453BB7FA9F3FB0BA4EFBAEB694C79E0EC2C1D2364435DDEE3DDB9DF033AAA6E0691514FD3B0D5C13A78CCD0BCF5ED854D214C646B130",
+                "560AF94CC1C8BB9AE6986502136B425D", 0));
+        data.add(new ListItem(R.drawable.woman, "Line A", "Line B", "Line C", 0));
+// 添加更多数据项...
+
+
+        MyAdapter adapter = new MyAdapter(data, this);
+        recyclerView.setAdapter(adapter);
+
         //清空文件内容
         clearFileOnStartup();
     }
+
+
+
+
     /**
      * 初始化控件
      */
@@ -307,7 +336,7 @@ private void postOne(String url) {
 }
 
 //get方法
-private void getOne(String url) {
+public void getOne(String url) {
     RequestQueue queue = Volley.newRequestQueue(this);
     StringRequest jsonRequest = new StringRequest(Request.Method.GET, url,
             new Response.Listener<String>() {
@@ -431,4 +460,6 @@ private void getOne(String url) {
         }
         return stringBuilder.toString();
     }
+
+
 }
