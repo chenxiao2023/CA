@@ -64,8 +64,8 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private Button showFile;
     private Button revokePkButton;
 
-    //private String address = "0xccdee8c8017f64c686fa39c42f883f363714e078";
-    private String address = "0x4f4072fc87a0833ea924f364e8a2af3546f71279";//地址2
+    private String address1 = "0xccdee8c8017f64c686fa39c42f883f363714e078";
+    private String address2 = "0x4f4072fc87a0833ea924f364e8a2af3546f71279";//地址2
 
     private String token="0x4c26aecee34487d29adff978fd6791578ed8fd28";
     //http参数
@@ -100,13 +100,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
         List<ListItem> data = new ArrayList<>();
-        data.add(new ListItem(R.drawable.man, address, "9A35281B56A83C6DDF86453BB7FA9F3FB0BA4EFBAEB694C79E0EC2C1D2364435DDEE3DDB9DF033AAA6E0691514FD3B0D5C13A78CCD0BCF5ED854D214C646B130",
+        data.add(new ListItem(R.drawable.man, address1, "9A35281B56A83C6DDF86453BB7FA9F3FB0BA4EFBAEB694C79E0EC2C1D2364435DDEE3DDB9DF033AAA6E0691514FD3B0D5C13A78CCD0BCF5ED854D214C646B130",
                 "560AF94CC1C8BB9AE6986502136B425D", 0));
-        data.add(new ListItem(R.drawable.woman, "Line A", "Line B", "Line C", 0));
+        data.add(new ListItem(R.drawable.woman, address2, "Line B", "Line C", 0));
 // 添加更多数据项...
 
 
-        MyAdapter adapter = new MyAdapter(data, this);
+        MyAdapter adapter = new MyAdapter(data, this,showres);
         recyclerView.setAdapter(adapter);
 
         //清空文件内容
@@ -122,21 +122,21 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     private void InitView() {
 
         showres = (TextView) findViewById(R.id.showres);
-        showres.setMovementMethod(new ScrollingMovementMethod());
+        showres.setMovementMethod(new ScrollingMovementMethod());//能划
 
         deployContractButton = (Button) findViewById(R.id.deployContractButton);
-        updatePublicKeyButton = (Button) findViewById(R.id.updatePublicKeyButton);
-        batchRegisterButton = (Button) findViewById(R.id.batchRegisterButton);
+        //updatePublicKeyButton = (Button) findViewById(R.id.updatePublicKeyButton);
+        //batchRegisterButton = (Button) findViewById(R.id.batchRegisterButton);
         showFile = (Button) findViewById(R.id.showfile);
-        publishPublicKeyButton = (Button) findViewById(R.id.publishPublicKeyButton);
-        revokePkButton = (Button) findViewById(R.id.revokePkButton);
+        //publishPublicKeyButton = (Button) findViewById(R.id.publishPublicKeyButton);
+        //revokePkButton = (Button) findViewById(R.id.revokePkButton);
 
 
         deployContractButton.setOnClickListener(this);
-        updatePublicKeyButton.setOnClickListener(this);
-        batchRegisterButton.setOnClickListener(this);
-        publishPublicKeyButton.setOnClickListener(this);
-        revokePkButton.setOnClickListener(this);
+        //updatePublicKeyButton.setOnClickListener(this);
+        //batchRegisterButton.setOnClickListener(this);
+        //publishPublicKeyButton.setOnClickListener(this);
+        //revokePkButton.setOnClickListener(this);
         showFile.setOnClickListener(this);
 
     }
@@ -198,7 +198,7 @@ private void postOne(String url) {
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
                                 String runtime = jsonObject.getString("runtime");
-                                String message = "合约部署成功，合约地址="+address;
+                                String message = "合约部署成功";
                                 showres.setText("MapPkToTx.deploy duration:"+runtime+"\n"+message);
                                 writeToInternalStorage("----------DeployContract---------");
                                 writeToInternalStorage("MapPkToTx.deploy duration:"+runtime+"\n"+message);
@@ -298,24 +298,24 @@ private void postOne(String url) {
             JSONObject jsonObject = new JSONObject();
             switch (url){
                 case "http://110.41.188.6:8080/deployContract":
-                    jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
+                    jsonObject=JsonPut.PutJson(jsonObject,"token",token);
                     break;
-                case "http://110.41.188.6:8080/pkDerive"://给地址返回
-                    jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
+                /*case "http://110.41.188.6:8080/pkDerive"://给地址返回
+                    jsonObject=JsonPut.PutJson(jsonObject,"token",token);
                     jsonObject=JsonPut.PutJson(jsonObject,"address",address);
                     break;
                 case "http://110.41.188.6:8080/registerPk":
-                    jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
+                    jsonObject=JsonPut.PutJson(jsonObject,"token",token);
                     jsonObject=JsonPut.PutJson(jsonObject,"address",address);
                     break;
                 case "http://110.41.188.6:8080/BatchRegisterPk":
-                    jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
+                    jsonObject=JsonPut.PutJson(jsonObject,"token",token);
                     jsonObject=JsonPut.PutJson(jsonObject,"address",address);
                     break;
                 case "http://110.41.188.6:8080/revokePk":
-                    jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
+                    jsonObject=JsonPut.PutJson(jsonObject,"token",token);
                     jsonObject=JsonPut.PutJson(jsonObject,"key",RegpublicKey);
-                    break;
+                    break;*/
                 default:
                     System.out.println("Url错误！！");
                     return new byte[0]; // 返回空字节数组
@@ -335,60 +335,6 @@ private void postOne(String url) {
     queue.add(jsonRequest);
 }
 
-//get方法
-public void getOne(String url) {
-    RequestQueue queue = Volley.newRequestQueue(this);
-    StringRequest jsonRequest = new StringRequest(Request.Method.GET, url,
-            new Response.Listener<String>() {
-                @Override
-                public void onResponse(String response) {
-                    Log.d("测试PostOne", "url = " + url);
-                    Log.d("测试PostOne", "response =" + response);
-                    try {
-                        JSONObject jsonObject = new JSONObject(response);
-                        String runtime = jsonObject.getString("runtime");
-                        String message = "合约部署成功，合约地址="+address;
-                        showres.setText("MapPkToTx.deploy duration:"+runtime+"\n"+message);
-                        writeToInternalStorage("----------DeployContract---------");
-                        writeToInternalStorage("MapPkToTx.deploy duration:"+runtime+"\n"+message);
-                        writeToInternalStorage("\n");
-                    } catch (JSONException e) {
-                        Log.e("JSON解析错误", "解析失败: " + e.getMessage());
-                    }
-
-                }
-            },
-            new Response.ErrorListener() {
-                @Override
-                public void onErrorResponse(VolleyError error) {
-                    if (error.networkResponse != null) {
-                        Log.e("TAG", "Response code: " + error.networkResponse.statusCode);
-                        Log.e("TAG", "Response data: " + new String(error.networkResponse.data));
-                    } else {
-                        Log.e("TAG", "Network response is null");
-                    }
-                    String errorMessage = error.getMessage();
-                    if (errorMessage == null) {
-                        Log.e("TAG", "Error message is null");
-                    } else {
-                        Log.e("TAG", "Error message: " + errorMessage);
-                    }
-
-                }
-            }) {
-
-        @Override
-        public String getBodyContentType() {
-            return "application/json; charset=utf-8";
-        }
-    };
-    int socketTimeout = 10000; // 10 seconds
-    RetryPolicy policy = new DefaultRetryPolicy(socketTimeout, DefaultRetryPolicy.DEFAULT_MAX_RETRIES, DefaultRetryPolicy.DEFAULT_BACKOFF_MULT);
-    jsonRequest.setRetryPolicy(policy);
-
-
-    queue.add(jsonRequest);
-}
     // 写入文件到内部存储
     private void writeToInternalStorage(String data) {
         try (FileOutputStream fos = openFileOutput("logg.txt", MODE_APPEND)) {

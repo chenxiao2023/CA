@@ -41,21 +41,6 @@
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="部署合约" />
-
-        <Button
-            android:id="@+id/updatePublicKeyButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="公钥派生" />
-
-        <Button
-            android:id="@+id/batchRegisterButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="批量注册公钥" />
-
     </LinearLayout>
 
     <LinearLayout
@@ -68,16 +53,6 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-
-        <Button
-            android:id="@+id/publishPublicKeyButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="注册公钥"
-            tools:layout_editor_absoluteX="-2dp"
-            tools:layout_editor_absoluteY="706dp" />
-
       <!---  <Button
             android:id="@+id/publishTxIDButton"
             android:layout_width="0dp"
@@ -86,19 +61,11 @@
             android:text="发布TxID" />  -->
 
         <Button
-            android:id="@+id/revokePkButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="撤销公钥" />
-
-        <Button
             android:id="@+id/showfile"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
             android:text="显示文件内容" />
-
 
     </LinearLayout>
 

@@ -36,15 +36,18 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
 
     private List<ListItem> mData;
     private Context mContext;
+    private TextView mshowres;
     private int height;
     private boolean isExpanded1 = false;
     private boolean isExpanded2 = false;
     private boolean isExpanded3 = false;
     private boolean isExpanded4 = false;
 
-    public MyAdapter(List<ListItem> data, Context context) {
+
+    public MyAdapter(List<ListItem> data, Context context,TextView showres) {
         this.mData = data;
         this.mContext = context;
+        this.mshowres=showres;
     }
 
     @NonNull
@@ -126,12 +129,12 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 // 处理按钮点击事件
-                showPopupWindow(v, position);
+                showPopupWindow(v, position, holder);
             }
         });
     }
 
-    private void showPopupWindow(View anchorView, final int position) {
+    private void showPopupWindow(View anchorView, final int position, final ViewHolder holder) {
         // 使用 LayoutInflater 加载 popup_layout.xml
         View popupView = LayoutInflater.from(mContext).inflate(R.layout.popup_buttons, null);
 
@@ -141,12 +144,13 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         Button batchRegisterButton = popupView.findViewById(R.id.batchRegisterButton);
         Button revokePkButton = popupView.findViewById(R.id.revokePkButton);
 
-        // 设置按钮点击事件
+        // 注册公钥按钮
         publishPublicKeyButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 // 处理 Button 1 点击事件
-                handleButton1Click(position,mContext);
+                handleButton1Click(position,holder);
+
             }
         });
 
@@ -154,7 +158,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 // 处理 Button 2 点击事件
-                handleButton2Click(position);
+                handleButton2Click(position,holder);
             }
         });
 
@@ -162,7 +166,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 // 处理 Button 3 点击事件
-                handleButton3Click(position);
+                handleButton3Click(position,holder);
             }
         });
 
@@ -170,7 +174,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 // 处理 Button 4 点击事件
-                handleButton4Click(position);
+                handleButton4Click(position,holder);
             }
         });
 
@@ -259,32 +263,35 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             rightButton = itemView.findViewById(R.id.right_button);
         }
     }
-    private void handleButton1Click(int position,Context context) {
+    private void handleButton1Click(int position,final ViewHolder holder) {
         // 处理 Button 1 点击事件
         ListItem item = mData.get(position);
         // 执行相应操作
-        postOne("http://110.41.188.6:8080/registerPk",context,item);
+        postOne("http://110.41.188.6:8080/registerPk",item,holder);
     }
 
-    private void handleButton2Click(int position) {
+    private void handleButton2Click(int position,final ViewHolder holder) {
         // 处理 Button 2 点击事件
         ListItem item = mData.get(position);
         // 执行相应操作
+        postOne("http://110.41.188.6:8080/pkDerive",item,holder);
     }
 
-    private void handleButton3Click(int position) {
+    private void handleButton3Click(int position,final ViewHolder holder) {
         // 处理 Button 3 点击事件
         ListItem item = mData.get(position);
         // 执行相应操作
+        postOne("http://110.41.188.6:8080/BatchRegisterPk",item,holder);
     }
 
-    private void handleButton4Click(int position) {
+    private void handleButton4Click(int position,final ViewHolder holder) {
         // 处理 Button 4 点击事件
         ListItem item = mData.get(position);
         // 执行相应操作
+        postOne("http://110.41.188.6:8080/revokePk",item,holder);
     }
 
-    private void postOne(String url,Context context,ListItem item) {
+    private void postOne(String url,ListItem item,final ViewHolder holder) {
         RequestQueue queue = Volley.newRequestQueue(mContext);
         StringRequest jsonRequest = new StringRequest(Request.Method.POST, url,
                 new Response.Listener<String>() {
@@ -300,9 +307,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                                     JSONObject jsonObject = new JSONObject(response);
                                     String runtime = jsonObject.getString("runtime");
                                     String message = "合约部署成功，合约地址="+item.getaddress();
+                                    mshowres.setText("MapPkToTx.deploy duration:"+runtime+"\n"+message);
 
-                                    /*showres.setText("MapPkToTx.deploy duration:"+runtime+"\n"+message);
-                                    writeToInternalStorage("----------DeployContract---------");
+                                    /*writeToInternalStorage("----------DeployContract---------");
                                     writeToInternalStorage("MapPkToTx.deploy duration:"+runtime+"\n"+message);
                                     writeToInternalStorage("\n");*/
                                 } catch (JSONException e) {
@@ -317,8 +324,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                                     String publicKey = jsonObject.getString("publicKey");
                                     item.setRegpublicKey(publicKey);
                                     // 输出或者使用这些数据
-                                   /* showres.setText("SM2_PublicKeyDerive duration:"+runtime+"\npublicKey="+publicKey+"\nchain="+chain);
-                                    writeToInternalStorage("-------SM2_PublicKeyDerive-------");
+                                    mshowres.setText("SM2_PublicKeyDerive duration:"+runtime+"\npublicKey="+publicKey+"\nchain="+chain);
+                                   /* writeToInternalStorage("-------SM2_PublicKeyDerive-------");
                                     writeToInternalStorage("SM2_PublicKeyDerive duration:"+runtime+"\npublicKey="+publicKey+"\nchain="+chain);
                                     writeToInternalStorage("\n");*/
                                 } catch (JSONException e) {
@@ -329,12 +336,21 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                                 try {
                                     JSONObject jsonObject = new JSONObject(response);
                                     String runtime = jsonObject.getString("runtime");
+                                    String chain = jsonObject.getString("chain");
                                     String message = "“成功注册公钥:生成公钥证书,将公钥证书嵌入到交易发布到区块链上,更新合约内容”";
                                     String publicKey = jsonObject.getString("publicKey");
-                                    String transaction = jsonObject.getString("transaction");
 
-                                   /* showres.setText("Register_PublicKey duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
-                                    writeToInternalStorage("-------Register_PublicKey-------");
+                                    //修改item的值
+                                    item.setPublickey(publicKey);
+                                    item.setChain(chain);
+
+                                    // 设置文本
+                                    holder.textView2.setText(item.getpublickey());
+                                    holder.textView3.setText(item.getchain());
+
+                                    String transaction = jsonObject.getString("transaction");
+                                    mshowres.setText("Register_PublicKey duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
+                                    /*writeToInternalStorage("-------Register_PublicKey-------");
                                     writeToInternalStorage("Register_PublicKey duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
                                     writeToInternalStorage("\n");*/
                                 } catch (JSONException e) {
@@ -348,9 +364,11 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                                     String message = "“成功派生密钥五次，并注册公钥”";
                                     String publicKey = jsonObject.getString("publicKey");
                                     String transaction = jsonObject.getString("transaction");
-
-                                  /*  showres.setText("BatchRegisterPk duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
-                                    writeToInternalStorage("----------BatchRegisterPk--------");
+                                    item.setPublickey(publicKey);
+                                    int newKeyIndex=item.getkeyIndex()+5;
+                                    item.setKeyIndex(newKeyIndex);
+                                    mshowres.setText("BatchRegisterPk duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
+                                  /*  writeToInternalStorage("----------BatchRegisterPk--------");
                                     writeToInternalStorage("BatchRegisterPk duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
                                     writeToInternalStorage("\n");*/
                                 } catch (JSONException e) {
@@ -363,8 +381,8 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                                     String runtime = jsonObject.getString("runtime");
                                     String message = jsonObject.getString("message");
 
-                                  /*  showres.setText("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的publickey="+RegpublicKey);
-                                    writeToInternalStorage("----------Revoke_PublicKey-------");
+                                    mshowres.setText("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的publickey="+item.getRegpublicKey());
+                                   /*  writeToInternalStorage("----------Revoke_PublicKey-------");
                                     writeToInternalStorage("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的publickey="+RegpublicKey);
                                     writeToInternalStorage("\n");*/
                                 } catch (JSONException e) {
