@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <!-- 默认状态 -->
+    <item android:drawable="@drawable/custom_button_background" android:state_enabled="true"/>
+    <!-- 按下状态 -->
+    <item android:drawable="@drawable/custom_button_background_pressed" android:state_pressed="true"/>
+    <!-- 获得焦点状态 -->
+    <item android:drawable="@drawable/custom_button_background_focused" android:state_focused="true"/>
+</selector>

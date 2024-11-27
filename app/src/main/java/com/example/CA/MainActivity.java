@@ -41,6 +41,8 @@ import java.io.InputStreamReader;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 //http请求用的
 import com.android.volley.DefaultRetryPolicy;
@@ -53,26 +55,33 @@ import com.android.volley.VolleyError;
 
 import com.android.volley.toolbox.StringRequest;
 import com.android.volley.toolbox.Volley;
+import android.os.Handler;
+import android.os.Looper;
+import android.os.AsyncTask;
 
 public class MainActivity extends AppCompatActivity implements View.OnClickListener {
 
     private TextView showres;
+
     private Button deployContractButton;
-    private Button publishPublicKeyButton;
-    private Button updatePublicKeyButton;
-    private Button batchRegisterButton;
+    private Button traceuserButton;
     private Button showFile;
-    private Button revokePkButton;
+
 
     private String address1 = "0xccdee8c8017f64c686fa39c42f883f363714e078";
     private String address2 = "0x4f4072fc87a0833ea924f364e8a2af3546f71279";//地址2
 
     private String token="0x4c26aecee34487d29adff978fd6791578ed8fd28";
     //http参数
-    private String RegpublicKey;
-
+    private String RegpublicKey="null";
+    private String testPk="9A35281B56A83C6DDF86453BB7FA9F3FB0BA4EFBAEB694C79E0EC2C1D2364435DDEE3DDB9DF033AAA6E0691514FD3B0D5C13A78CCD0BCF5ED854D214C646B130";
+    private String testchain="560AF94CC1C8BB9AE6986502136B425D";
     //部署合约
     private  String urlDeployContract = "http://110.41.188.6:8080/deployContract";
+    //初始化请求
+    private  String urlInitialuser = "http://110.41.188.6:8080/getuser";
+    //追踪用户
+    private  String urlTraceuser = "http://110.41.188.6:8080/traceuser";
     //更新公钥
     private  String urlPkDerive = "http://110.41.188.6:8080/pkDerive";
     //注册公钥
@@ -82,6 +91,10 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     //撤销公钥
     private  String urlRevokePk =  "http://110.41.188.6:8080/revokePk";
 
+    private Handler handler;
+    private Runnable runnable;
+    private ExecutorService executorService;
+    private List<ListItem> mdata= new ArrayList<>();;
     private static String[] PERMISSIONS_STORAGE = {
             //依次权限申请
             Manifest.permission.INTERNET,
@@ -99,22 +112,23 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         RecyclerView recyclerView = findViewById(R.id.recycler_view);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
+        //添加数据项
         List<ListItem> data = new ArrayList<>();
-        data.add(new ListItem(R.drawable.man, address1, "9A35281B56A83C6DDF86453BB7FA9F3FB0BA4EFBAEB694C79E0EC2C1D2364435DDEE3DDB9DF033AAA6E0691514FD3B0D5C13A78CCD0BCF5ED854D214C646B130",
-                "560AF94CC1C8BB9AE6986502136B425D", 0));
-        data.add(new ListItem(R.drawable.woman, address2, "Line B", "Line C", 0));
-// 添加更多数据项...
-
+        data.add(new ListItem(R.drawable.man, address1, "",
+                "", 0,"user1"));
+        data.add(new ListItem(R.drawable.woman, address2, "", "", 0,"user2"));
 
         MyAdapter adapter = new MyAdapter(data, this,showres);
         recyclerView.setAdapter(adapter);
+        mdata=data;
 
+       // postOne(urlInitialuser, 0);
+
+      //  executorService = Executors.newSingleThreadExecutor();
+       // startBackgroundTask();
         //清空文件内容
         clearFileOnStartup();
     }
-
-
-
 
     /**
      * 初始化控件
@@ -125,20 +139,13 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
         showres.setMovementMethod(new ScrollingMovementMethod());//能划
 
         deployContractButton = (Button) findViewById(R.id.deployContractButton);
-        //updatePublicKeyButton = (Button) findViewById(R.id.updatePublicKeyButton);
-        //batchRegisterButton = (Button) findViewById(R.id.batchRegisterButton);
+        traceuserButton = (Button) findViewById(R.id.traceuserButton);
         showFile = (Button) findViewById(R.id.showfile);
-        //publishPublicKeyButton = (Button) findViewById(R.id.publishPublicKeyButton);
-        //revokePkButton = (Button) findViewById(R.id.revokePkButton);
 
 
         deployContractButton.setOnClickListener(this);
-        //updatePublicKeyButton.setOnClickListener(this);
-        //batchRegisterButton.setOnClickListener(this);
-        //publishPublicKeyButton.setOnClickListener(this);
-        //revokePkButton.setOnClickListener(this);
+        traceuserButton.setOnClickListener(this);
         showFile.setOnClickListener(this);
-
     }
     //定义判断权限申请的函数，在onCreat中调用就行
     public void applypermission(){
@@ -160,20 +167,11 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     @Override
     public void onClick(View view) {
         switch (view.getId()){
-            case R.id.deployContractButton://部署公钥
-                postOne(urlDeployContract);
+            case R.id.deployContractButton://部署合约
+                postOne(urlDeployContract,-1);
                 break;
-            case R.id.updatePublicKeyButton://更新公钥
-                postOne(urlPkDerive);
-                break;
-            case R.id.batchRegisterButton://批量注册公钥
-                postOne(urlBatchRegisterPk);
-                break;
-            case R.id.publishPublicKeyButton://注册公钥
-                postOne(urlRegisterPk);
-                break;
-            case R.id.revokePkButton://撤销公钥
-                postOne(urlRevokePk);
+            case R.id.traceuserButton://追踪用户
+                postOne(urlTraceuser,-1);
                 break;
             case R.id.showfile://展示日志
                 showFileContentDialog();
@@ -183,7 +181,7 @@ public class MainActivity extends AppCompatActivity implements View.OnClickListe
     }
 
 //传1个参数
-private void postOne(String url) {
+private void postOne(String url,int position) {
     RequestQueue queue = Volley.newRequestQueue(this);
     StringRequest jsonRequest = new StringRequest(Request.Method.POST, url,
             new Response.Listener<String>() {
@@ -194,6 +192,32 @@ private void postOne(String url) {
                     Log.d("测试PostOne", "response =" + response);
 
                     switch (url){
+                        case "http://110.41.188.6:8080/initial":
+                            try {
+                                JSONObject jsonObject = new JSONObject(response);
+                                String chain = jsonObject.getString("chain");
+                                String publicKey = jsonObject.getString("publicKey");
+                                String keyIndex = jsonObject.getString("keyIndex");
+
+                                String message= "";
+                                message=jsonObject.getString("message");
+                                if(!message.equals("user not found")){
+                                    mdata.get(position).setPublickey(publicKey);
+                                    mdata.get(position).setChain(chain);
+                                    mdata.get(position).setKeyIndex(Integer.parseInt(keyIndex));
+                                    mdata.get(position).setInitialized(true);
+                                    // 输出或者使用这些数据
+                                    showres.setText("username="+mdata.get(position).getUsername()+"\naddress="+mdata.get(position).getaddress()+"\npublicKey="+publicKey+"\nchain="+chain+"\nkeyIndex="+keyIndex);
+                                    writeToInternalStorage("--------Initial--------");
+                                    writeToInternalStorage("username="+mdata.get(position).getUsername()+"\naddress="+mdata.get(position).getaddress()+"\npublicKey="+publicKey+"\nchain="+chain+"\nkeyIndex="+keyIndex);
+                                    writeToInternalStorage("\n");
+                                }else{
+
+                                }
+                            } catch (JSONException e) {
+                                Log.e("JSON解析错误", "解析失败: " + e.getMessage());
+                            }
+                            break;
                         case "http://110.41.188.6:8080/deployContract":
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
@@ -207,68 +231,21 @@ private void postOne(String url) {
                                 Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                             }
                             break;
-                        case "http://110.41.188.6:8080/pkDerive":
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                String runtime = jsonObject.getString("runtime");
-                                String chain = jsonObject.getString("chain");
-                                String publicKey = jsonObject.getString("publicKey");
-                                RegpublicKey=publicKey;
-                                // 输出或者使用这些数据
-                                showres.setText("SM2_PublicKeyDerive duration:"+runtime+"\npublicKey="+publicKey+"\nchain="+chain);
-                                writeToInternalStorage("-------SM2_PublicKeyDerive-------");
-                                writeToInternalStorage("SM2_PublicKeyDerive duration:"+runtime+"\npublicKey="+publicKey+"\nchain="+chain);
-                                writeToInternalStorage("\n");
-                            } catch (JSONException e) {
-                                Log.e("JSON解析错误", "解析失败: " + e.getMessage());
-                            }
-                            break;
-                        case "http://110.41.188.6:8080/registerPk":
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                String runtime = jsonObject.getString("runtime");
-                                String message = "“成功注册公钥:生成公钥证书,将公钥证书嵌入到交易发布到区块链上,更新合约内容”";
-                                String publicKey = jsonObject.getString("publicKey");
-                                String transaction = jsonObject.getString("transaction");
 
-                                showres.setText("Register_PublicKey duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
-                                writeToInternalStorage("-------Register_PublicKey-------");
-                                writeToInternalStorage("Register_PublicKey duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
-                                writeToInternalStorage("\n");
-                            } catch (JSONException e) {
-                                Log.e("JSON解析错误", "解析失败: " + e.getMessage());
-                            }
-                            break;
-                        case "http://110.41.188.6:8080/BatchRegisterPk":
+                        case "http://110.41.188.6:8080/traceuser":
                             try {
                                 JSONObject jsonObject = new JSONObject(response);
-                                String runtime = jsonObject.getString("runtime");
-                                String message = "“成功派生密钥五次，并注册公钥”";
-                                String publicKey = jsonObject.getString("publicKey");
-                                String transaction = jsonObject.getString("transaction");
-
-                                showres.setText("BatchRegisterPk duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
-                                writeToInternalStorage("----------BatchRegisterPk--------");
-                                writeToInternalStorage("BatchRegisterPk duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
+                               // String runtime = jsonObject.getString("runtime");
+                                String message = jsonObject.getString("message");;
+                                showres.setText("trackUser message:"+message);
+                                writeToInternalStorage("------------TrackUser-----------");
+                                writeToInternalStorage("\nmessage:"+message);
                                 writeToInternalStorage("\n");
                             } catch (JSONException e) {
                                 Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                             }
                             break;
-                        case "http://110.41.188.6:8080/revokePk":
-                            try {
-                                JSONObject jsonObject = new JSONObject(response);
-                                String runtime = jsonObject.getString("runtime");
-                                String message = jsonObject.getString("message");
 
-                                showres.setText("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的publickey="+RegpublicKey);
-                                writeToInternalStorage("----------Revoke_PublicKey-------");
-                                writeToInternalStorage("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的publickey="+RegpublicKey);
-                                writeToInternalStorage("\n");
-                            } catch (JSONException e) {
-                                Log.e("JSON解析错误", "解析失败: " + e.getMessage());
-                            }
-                            break;
                         default:
                             System.out.println("Url错误！！");
 
@@ -297,25 +274,22 @@ private void postOne(String url) {
         public byte[] getBody() {
             JSONObject jsonObject = new JSONObject();
             switch (url){
+                case "http://110.41.188.6:8080/initial":
+                    jsonObject=JsonPut.PutJson(jsonObject,"token",token);
+                    jsonObject=JsonPut.PutJson(jsonObject,"address",mdata.get(position).getaddress());
+                    break;
                 case "http://110.41.188.6:8080/deployContract":
                     jsonObject=JsonPut.PutJson(jsonObject,"token",token);
                     break;
-                /*case "http://110.41.188.6:8080/pkDerive"://给地址返回
-                    jsonObject=JsonPut.PutJson(jsonObject,"token",token);
-                    jsonObject=JsonPut.PutJson(jsonObject,"address",address);
-                    break;
-                case "http://110.41.188.6:8080/registerPk":
-                    jsonObject=JsonPut.PutJson(jsonObject,"token",token);
-                    jsonObject=JsonPut.PutJson(jsonObject,"address",address);
-                    break;
-                case "http://110.41.188.6:8080/BatchRegisterPk":
-                    jsonObject=JsonPut.PutJson(jsonObject,"token",token);
-                    jsonObject=JsonPut.PutJson(jsonObject,"address",address);
-                    break;
-                case "http://110.41.188.6:8080/revokePk":
-                    jsonObject=JsonPut.PutJson(jsonObject,"token",token);
+                case "http://110.41.188.6:8080/traceuser":
+                    if(mdata.get(1).getRegpublicKey().equals("")){
+                        RegpublicKey=mdata.get(0).getRegpublicKey();
+                    }else{
+                        RegpublicKey=mdata.get(1).getRegpublicKey();
+                    }
                     jsonObject=JsonPut.PutJson(jsonObject,"key",RegpublicKey);
-                    break;*/
+                    jsonObject=JsonPut.PutJson(jsonObject,"token",token);
+                    break;
                 default:
                     System.out.println("Url错误！！");
                     return new byte[0]; // 返回空字节数组
@@ -335,6 +309,40 @@ private void postOne(String url) {
     queue.add(jsonRequest);
 }
 
+    private void startBackgroundTask() {
+        executorService.execute(new Runnable() {
+            @Override
+            public void run() {
+                boolean allInitialized = false;
+
+                while (!allInitialized) {
+                    for (int i=0;i<mdata.size();i++) {
+                        if (!mdata.get(i).isInitialized()) {
+                            postOne(urlInitialuser, i);
+                        }
+                    }
+
+                    try {
+                        Thread.sleep(2000);
+                    } catch (InterruptedException e) {
+                        e.printStackTrace();
+                    }
+
+                    // 检查所有 ListItem 是否都已初始化
+                    allInitialized = true;
+                    for (ListItem checkItem : mdata) {
+                        if (!checkItem.isInitialized()) {
+                            allInitialized = false;
+                            break;
+                        }
+                    }
+                }
+
+                // 任务完成后关闭线程池
+                executorService.shutdown();
+            }
+        });
+    }
     // 写入文件到内部存储
     private void writeToInternalStorage(String data) {
         try (FileOutputStream fos = openFileOutput("logg.txt", MODE_APPEND)) {
@@ -391,7 +399,6 @@ private void postOne(String url) {
         dialog.show();
     }
 
-
     //读取文件
     private String readFromInternalStorage() {
         StringBuilder stringBuilder = new StringBuilder();
@@ -406,6 +413,5 @@ private void postOne(String url) {
         }
         return stringBuilder.toString();
     }
-
 
 }

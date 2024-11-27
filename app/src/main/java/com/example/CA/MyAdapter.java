@@ -29,6 +29,8 @@ import com.android.volley.toolbox.Volley;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.FileOutputStream;
+import java.io.IOException;
 import java.security.PublicKey;
 import java.util.List;
 
@@ -37,12 +39,25 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
     private List<ListItem> mData;
     private Context mContext;
     private TextView mshowres;
+    private String name="";
     private int height;
     private boolean isExpanded1 = false;
     private boolean isExpanded2 = false;
     private boolean isExpanded3 = false;
     private boolean isExpanded4 = false;
+    private String token="0x4c26aecee34487d29adff978fd6791578ed8fd28";
 
+    //初始化请求
+    private  String urlInitial = "http://110.41.188.6:8080/initial";
+
+    //更新公钥
+    private  String urlPkDerive = "http://110.41.188.6:8080/pkDerive";
+    //注册公钥
+    private  String urlBatchRegisterPk =  "http://110.41.188.6:8080/BatchRegisterPk";
+    //批量注册公钥
+    private  String urlRegisterPk =  "http://110.41.188.6:8080/registerPk";
+    //撤销公钥
+    private  String urlRevokePk =  "http://110.41.188.6:8080/revokePk";
 
     public MyAdapter(List<ListItem> data, Context context,TextView showres) {
         this.mData = data;
@@ -112,18 +127,6 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             }
         });
 
-        //keyIndex的展开按钮
-        holder.expand_button_keyIndex.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                if (isExpanded4) {//110,145
-                    reduceTextView(holder.textView4,view);
-                } else {
-                    expandTextViewToFitContent(holder.textView4,view);
-                }
-                isExpanded4 = !isExpanded4;
-            }
-        });
 
         holder.rightButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -149,8 +152,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 // 处理 Button 1 点击事件
-                handleButton1Click(position,holder);
-
+                ListItem item = mData.get(position);
+                // 执行相应操作
+                postOne(urlRegisterPk,item,holder);
             }
         });
 
@@ -158,7 +162,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 // 处理 Button 2 点击事件
-                handleButton2Click(position,holder);
+                ListItem item = mData.get(position);
+                // 执行相应操作
+                postOne(urlPkDerive,item,holder);
             }
         });
 
@@ -166,7 +172,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 // 处理 Button 3 点击事件
-                handleButton3Click(position,holder);
+                ListItem item = mData.get(position);
+                // 执行相应操作
+                postOne(urlBatchRegisterPk,item,holder);
             }
         });
 
@@ -174,7 +182,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             @Override
             public void onClick(View v) {
                 // 处理 Button 4 点击事件
-                handleButton4Click(position,holder);
+                ListItem item = mData.get(position);
+                // 执行相应操作
+                postOne(urlRevokePk,item,holder);
             }
         });
 
@@ -220,7 +230,7 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                 if (layout != null) {
                     int height = layout.getLineTop(layout.getLineCount());
                     ViewGroup.LayoutParams params = textView.getLayoutParams();
-                    params.height = height+55;
+                    params.height = height+45;
                     Log.d("height=", String.valueOf(height));
                     textView.setLayoutParams(params);
                     ((ImageView) view).setImageResource(R.drawable.ic_expand_less);
@@ -258,37 +268,9 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             expand_button_address=itemView.findViewById(R.id.expand_button_address);
             expand_button_pk = itemView.findViewById(R.id.expand_button_pk);
             expand_button_chain = itemView.findViewById(R.id.expand_button_chain);
-            expand_button_keyIndex = itemView.findViewById(R.id.expand_button_keyIndex);
 
             rightButton = itemView.findViewById(R.id.right_button);
         }
-    }
-    private void handleButton1Click(int position,final ViewHolder holder) {
-        // 处理 Button 1 点击事件
-        ListItem item = mData.get(position);
-        // 执行相应操作
-        postOne("http://110.41.188.6:8080/registerPk",item,holder);
-    }
-
-    private void handleButton2Click(int position,final ViewHolder holder) {
-        // 处理 Button 2 点击事件
-        ListItem item = mData.get(position);
-        // 执行相应操作
-        postOne("http://110.41.188.6:8080/pkDerive",item,holder);
-    }
-
-    private void handleButton3Click(int position,final ViewHolder holder) {
-        // 处理 Button 3 点击事件
-        ListItem item = mData.get(position);
-        // 执行相应操作
-        postOne("http://110.41.188.6:8080/BatchRegisterPk",item,holder);
-    }
-
-    private void handleButton4Click(int position,final ViewHolder holder) {
-        // 处理 Button 4 点击事件
-        ListItem item = mData.get(position);
-        // 执行相应操作
-        postOne("http://110.41.188.6:8080/revokePk",item,holder);
     }
 
     private void postOne(String url,ListItem item,final ViewHolder holder) {
@@ -302,16 +284,28 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                         Log.d("测试PostOne", "response =" + response);
 
                         switch (url){
-                            case "http://110.41.188.6:8080/deployContract":
+                            case "http://110.41.188.6:8080/initial":
                                 try {
                                     JSONObject jsonObject = new JSONObject(response);
-                                    String runtime = jsonObject.getString("runtime");
-                                    String message = "合约部署成功，合约地址="+item.getaddress();
-                                    mshowres.setText("MapPkToTx.deploy duration:"+runtime+"\n"+message);
+                                    String chain = jsonObject.getString("chain");
+                                    String publicKey = jsonObject.getString("publicKey");
+                                    String keyIndex = jsonObject.getString("keyIndex");
 
-                                    /*writeToInternalStorage("----------DeployContract---------");
-                                    writeToInternalStorage("MapPkToTx.deploy duration:"+runtime+"\n"+message);
-                                    writeToInternalStorage("\n");*/
+                                    String message= "";
+                                    message=jsonObject.getString("message");
+                                    if(!message.equals("user not found")){
+                                        item.setPublickey(publicKey);
+                                        item.setChain(chain);
+                                        item.setKeyIndex(Integer.parseInt(keyIndex));
+
+                                        // 输出或者使用这些数据
+                                        mshowres.setText("username="+item.getUsername()+"\naddress="+item.getaddress()+"\npublicKey="+publicKey+"\nchain="+chain+"\nkeyIndex="+keyIndex);
+                                        writeToInternalStorage("--------Initial--------");
+                                        writeToInternalStorage("username="+item.getUsername()+"\naddress="+item.getaddress()+"\npublicKey="+publicKey+"\nchain="+chain+"\nkeyIndex="+keyIndex);
+                                        writeToInternalStorage("\n");
+                                    }else{
+
+                                    }
                                 } catch (JSONException e) {
                                     Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                                 }
@@ -322,12 +316,19 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                                     String runtime = jsonObject.getString("runtime");
                                     String chain = jsonObject.getString("chain");
                                     String publicKey = jsonObject.getString("publicKey");
-                                    item.setRegpublicKey(publicKey);
-                                    // 输出或者使用这些数据
-                                    mshowres.setText("SM2_PublicKeyDerive duration:"+runtime+"\npublicKey="+publicKey+"\nchain="+chain);
-                                   /* writeToInternalStorage("-------SM2_PublicKeyDerive-------");
-                                    writeToInternalStorage("SM2_PublicKeyDerive duration:"+runtime+"\npublicKey="+publicKey+"\nchain="+chain);
-                                    writeToInternalStorage("\n");*/
+                                    String message= "";
+                                    message=jsonObject.getString("message");
+                                    if(!message.equals("user not found")){
+                                        item.setRegpublicKey(publicKey);
+                                        // 输出或者使用这些数据
+                                        mshowres.setText("username="+item.getUsername()+"\nSM2_PublicKeyDerive duration:"+runtime+"\npublicKey="+publicKey+"\nchain="+chain);
+                                        writeToInternalStorage("-------SM2_PublicKeyDerive-------");
+                                        writeToInternalStorage("username="+item.getUsername()+"\nSM2_PublicKeyDerive duration:"+runtime+"\npublicKey="+publicKey+"\nchain="+chain);
+                                        writeToInternalStorage("\n");
+                                    }else{
+                                        message = "“公钥派生失败，该用户还未初始化”";
+                                        mshowres.setText("“公钥派生失败，该用户还未初始化”");
+                                    }
                                 } catch (JSONException e) {
                                     Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                                 }
@@ -337,22 +338,32 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                                     JSONObject jsonObject = new JSONObject(response);
                                     String runtime = jsonObject.getString("runtime");
                                     String chain = jsonObject.getString("chain");
-                                    String message = "“成功注册公钥:生成公钥证书,将公钥证书嵌入到交易发布到区块链上,更新合约内容”";
+                                    String keyIndex=jsonObject.getString("keyindex");
                                     String publicKey = jsonObject.getString("publicKey");
+                                    String message= "";
+                                    message=jsonObject.getString("message");
+                                    if(!message.equals("user not found")){
+                                         message = "“成功注册公钥:生成公钥证书,将公钥证书嵌入到交易发布到区块链上,更新合约内容”";
+                                        //修改item的值
+                                        item.setPublickey(publicKey);
+                                        item.setChain(chain);
+                                        item.setKeyIndex(Integer.parseInt(keyIndex));
 
-                                    //修改item的值
-                                    item.setPublickey(publicKey);
-                                    item.setChain(chain);
+                                        // 设置文本
+                                        holder.textView2.setText(item.getpublickey());
+                                        holder.textView3.setText(item.getchain());
 
-                                    // 设置文本
-                                    holder.textView2.setText(item.getpublickey());
-                                    holder.textView3.setText(item.getchain());
+                                        String transaction = jsonObject.getString("transaction");
+                                        mshowres.setText("username="+item.getUsername()+"\nRegister_PublicKey duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
+                                        writeToInternalStorage("-------Register_PublicKey-------");
+                                        writeToInternalStorage("username="+item.getUsername()+"\nRegister_PublicKey duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
+                                        writeToInternalStorage("\n");
+                                    }else{
+                                         message = "“注册公钥失败，该用户还未初始化”";
+                                         mshowres.setText("“注册公钥失败，该用户还未初始化”");
+                                    }
 
-                                    String transaction = jsonObject.getString("transaction");
-                                    mshowres.setText("Register_PublicKey duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
-                                    /*writeToInternalStorage("-------Register_PublicKey-------");
-                                    writeToInternalStorage("Register_PublicKey duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
-                                    writeToInternalStorage("\n");*/
+
                                 } catch (JSONException e) {
                                     Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                                 }
@@ -361,16 +372,35 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                                 try {
                                     JSONObject jsonObject = new JSONObject(response);
                                     String runtime = jsonObject.getString("runtime");
-                                    String message = "“成功派生密钥五次，并注册公钥”";
                                     String publicKey = jsonObject.getString("publicKey");
                                     String transaction = jsonObject.getString("transaction");
-                                    item.setPublickey(publicKey);
-                                    int newKeyIndex=item.getkeyIndex()+5;
-                                    item.setKeyIndex(newKeyIndex);
-                                    mshowres.setText("BatchRegisterPk duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
-                                  /*  writeToInternalStorage("----------BatchRegisterPk--------");
-                                    writeToInternalStorage("BatchRegisterPk duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
-                                    writeToInternalStorage("\n");*/
+                                    String chain = jsonObject.getString("chain");
+                                    String keyIndex = jsonObject.getString("keyindex");
+                                    String message= "";
+                                    message=jsonObject.getString("message");
+                                    if(!message.equals("user not found")){
+                                        message="“成功派生公钥五次，并注册公钥”";
+                                        //int newKeyIndex=item.getkeyIndex()+5;
+
+                                        item.setPublickey(publicKey);
+                                        item.setChain(chain);
+                                        item.setKeyIndex(Integer.parseInt(keyIndex));
+                                        //item.setKeyIndex(newKeyIndex);
+                                        // 设置文本
+                                        holder.textView2.setText(item.getpublickey());
+                                        holder.textView3.setText(item.getchain());
+                                        holder.textView4.setText(String.valueOf(item.getkeyIndex()));
+
+                                        mshowres.setText("username="+item.getUsername()+"\nBatchRegisterPk duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
+
+                                        writeToInternalStorage("----------BatchRegisterPk--------");
+                                        writeToInternalStorage("username="+item.getUsername()+"\nBatchRegisterPk duration:"+runtime+"\nmessage="+message+"\npublicKey="+publicKey+"\ntransaction="+transaction);
+                                        writeToInternalStorage("\n");
+                                    }else{
+                                        message="“批量派生公钥钥失败，该用户还未初始化”";
+                                        mshowres.setText("“批量派生公钥钥失败，该用户还未初始化”");
+                                    }
+
                                 } catch (JSONException e) {
                                     Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                                 }
@@ -380,11 +410,10 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
                                     JSONObject jsonObject = new JSONObject(response);
                                     String runtime = jsonObject.getString("runtime");
                                     String message = jsonObject.getString("message");
-
-                                    mshowres.setText("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的publickey="+item.getRegpublicKey());
-                                   /*  writeToInternalStorage("----------Revoke_PublicKey-------");
-                                    writeToInternalStorage("Revoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的publickey="+RegpublicKey);
-                                    writeToInternalStorage("\n");*/
+                                    mshowres.setText("username="+item.getUsername()+"\nRevoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的publickey="+item.getRegpublicKey());
+                                    writeToInternalStorage("----------Revoke_PublicKey-------");
+                                    writeToInternalStorage("username="+item.getUsername()+"\nRevoke_PublicKey duration:"+runtime+"\n撤销是否成功:"+message+"\n被撤销的publickey="+item.getRegpublicKey());
+                                    writeToInternalStorage("\n");
                                 } catch (JSONException e) {
                                     Log.e("JSON解析错误", "解析失败: " + e.getMessage());
                                 }
@@ -416,23 +445,24 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
             public byte[] getBody() {
                 JSONObject jsonObject = new JSONObject();
                 switch (url){
-                    case "http://110.41.188.6:8080/deployContract":
-                        jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
+                    case "http://110.41.188.6:8080/initial":
+                        jsonObject=JsonPut.PutJson(jsonObject,"token",token);
+                        jsonObject=JsonPut.PutJson(jsonObject,"address",item.getaddress());
                         break;
                     case "http://110.41.188.6:8080/pkDerive"://给地址返回
-                        jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
+                        jsonObject=JsonPut.PutJson(jsonObject,"token",token);
                         jsonObject=JsonPut.PutJson(jsonObject,"address",item.getaddress());
                         break;
                     case "http://110.41.188.6:8080/registerPk":
-                        jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
+                        jsonObject=JsonPut.PutJson(jsonObject,"token",token);
                         jsonObject=JsonPut.PutJson(jsonObject,"address",item.getaddress());
                         break;
                     case "http://110.41.188.6:8080/BatchRegisterPk":
-                        jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
+                        jsonObject=JsonPut.PutJson(jsonObject,"token",token);
                         jsonObject=JsonPut.PutJson(jsonObject,"address",item.getaddress());
                         break;
                     case "http://110.41.188.6:8080/revokePk":
-                        jsonObject=JsonPut.PutJson(jsonObject,"token","0x4c26aecee34487d29adff978fd6791578ed8fd28");
+                        jsonObject=JsonPut.PutJson(jsonObject,"token",token);
                         jsonObject=JsonPut.PutJson(jsonObject,"key",item.getRegpublicKey());
                         break;
                     default:
@@ -454,4 +484,15 @@ public class MyAdapter extends RecyclerView.Adapter<MyAdapter.ViewHolder> {
         queue.add(jsonRequest);
     }
 
+    // 写入文件到内部存储
+    public void writeToInternalStorage(String data) {
+        try (FileOutputStream fos = mContext.openFileOutput("logg.txt", Context.MODE_APPEND)) {
+            fos.write(data.getBytes());
+            fos.write("\n".getBytes()); // 添加换行符，确保每行数据占一行
+            Log.d("logg", "File written to internal storage.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            Log.e("Error", "Error writing file to internal storage: " + e.getMessage());
+        }
+    }
 }

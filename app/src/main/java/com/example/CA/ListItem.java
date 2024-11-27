@@ -5,14 +5,28 @@ public class ListItem {
     private String address, publickey, chain;
     private String RegpublicKey;
     private int keyIndex;
+    private boolean isInitialized;
 
-    public ListItem(int imageResource, String address, String publickey, String chain, int keyIndex) {
+
+    private String username;
+
+    public boolean isInitialized() {
+        return isInitialized;
+    }
+
+    public void setInitialized(boolean initialized) {
+        isInitialized = initialized;
+    }
+
+    public ListItem(int imageResource, String address, String publickey, String chain, int keyIndex, String username) {
         this.imageResource = imageResource;
         this.address = address;
         this.publickey = publickey;
         this.chain = chain;
         this.keyIndex = keyIndex;
         this.RegpublicKey="";
+        this.username=username;
+        this.isInitialized = false;
     }
 
     public int getImageResource() {
@@ -37,6 +51,14 @@ public class ListItem {
 
     public String getRegpublicKey() {
         return RegpublicKey;
+    }
+
+    public String getUsername() {
+        return username;
+    }
+
+    public void setUsername(String username) {
+        this.username = username;
     }
 
     public void setImageResource(int imageResource) {

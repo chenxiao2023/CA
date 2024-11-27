@@ -6,8 +6,6 @@
     android:layout_height="match_parent"
     tools:context=".MainActivity">
 
-
-
     <TextView
         android:id="@+id/showres"
         android:layout_width="match_parent"
@@ -17,19 +15,22 @@
         app:layout_constraintTop_toTopOf="parent"
         />
 
+    <!--展示按钮-->
     <androidx.recyclerview.widget.RecyclerView
         android:id="@+id/recycler_view"
         android:layout_width="match_parent"
         android:layout_height="0dp"
+        android:background="@drawable/rounded_background_light"
+        app:layout_constraintBottom_toTopOf="@+id/showButton1"
         app:layout_constraintTop_toBottomOf="@+id/showres"
-        app:layout_constraintBottom_toTopOf="@+id/showButton1"     />
+        app:layout_constraintVertical_bias="0.0"
+        android:padding="5dp"
+        tools:layout_editor_absoluteX="0dp" />
 
-    <!--展示按钮-->
     <LinearLayout
         android:id="@+id/showButton1"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        android:layout_marginBottom="10dp"
         android:orientation="horizontal"
         app:layout_constraintBottom_toTopOf="@+id/showButton2"
         app:layout_constraintEnd_toEndOf="parent"
@@ -38,9 +39,17 @@
         <Button
             android:id="@+id/deployContractButton"
             android:layout_width="0dp"
-            android:layout_height="wrap_content"
             android:layout_weight="1"
+            android:layout_height="wrap_content"
             android:text="部署合约" />
+
+        <Button
+            android:id="@+id/traceuserButton"
+            android:layout_width="0dp"
+            android:layout_weight="1"
+            android:layout_height="wrap_content"
+            android:text="追踪用户" />
+
     </LinearLayout>
 
     <LinearLayout
@@ -53,23 +62,14 @@
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent">
 
-      <!---  <Button
-            android:id="@+id/publishTxIDButton"
-            android:layout_width="0dp"
-            android:layout_height="wrap_content"
-            android:layout_weight="1"
-            android:text="发布TxID" />  -->
-
         <Button
             android:id="@+id/showfile"
             android:layout_width="0dp"
             android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:text="显示文件内容" />
+            android:text="显示测试结果" />
 
     </LinearLayout>
-
-
 
 
 </androidx.constraintlayout.widget.ConstraintLayout>
